@@ -1,0 +1,149 @@
+<!doctype html>
+<head>
+	<meta charset="UTF-8">
+	<title>video</title>
+	<style>
+		.container{
+			width: 500px;
+			margin: 5px auto;
+			display: flex;
+		}
+		.prev, .next{
+			cursor: pointer;
+		}
+		.headline{
+			width: 300px;
+			margin: 0 auto;
+			text-align: center;
+		}
+		header{
+			text-align: center;
+			margin-bottom: 30px;
+		}
+		th, td{
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<header>Календарь</header>
+		<main>
+			<section id="date-set">
+				<div class="container year-cont">
+					<button class="year-prev">prev.</button>
+					<div class="headline" id="year"></div>
+					<button class="year-next">next.</button>
+				</div>
+				<div class="container month-cont">
+					<button class="month-prev">prev.</button>
+					<div class="headline" id="month"></div>
+					<button class="month-next">next.</button>
+				</div>
+				<div class="container">
+					<div id="table"></div>
+				</div>
+			</section>
+		</main>
+<script>
+	const year = document.querySelector('#year');
+	const month = document.querySelector('#month');
+	const table = document.querySelector('#table');	
+	const dateSet = document.querySelector('#date-set');
+	const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+	const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+	renderHead(months[new Date().getMonth()], new Date().getFullYear());
+	createTeble();
+
+	function renderHead(currentMonth, currnetYear) {
+		year.innerHTML = currnetYear || year.innerHTML;
+		month.innerHTML = currentMonth || month.innerHTML;
+	};
+
+	function innerMonth(date){
+		return months[date];
+	};
+
+	dateSet.addEventListener('click', changeDate);
+	function changeDate(e) {
+		if( e.target.className == 'year-prev'){
+			calculateYear('-');
+		}
+		if( e.target.className == 'year-next'){
+			calculateYear('+');
+		}
+		if( e.target.className == 'month-prev'){
+			calculateMonth('-');
+		}
+		if( e.target.className == 'month-next'){
+			calculateMonth('+');
+		}
+		createTeble();
+	};
+
+	function calculateYear(countSymbol){
+		let currentDate = year.innerHTML;
+		year.innerHTML = (countSymbol == '-') ? currentDate - 1 : Number(currentDate) + 1;
+	};
+
+	function calculateMonth(countSymbol){
+		let currentDate = month.innerHTML;
+		let monthNum = months.indexOf(currentDate);
+		monthNum = (countSymbol == '-') ? monthNum - 1 : Number(monthNum) + 1;
+		if(monthNum == months.length){
+			calculateYear('+');
+			monthNum = 0;
+		};
+		if(monthNum < 0){
+			calculateYear('-');
+			monthNum = months.length - 1;
+		};
+		renderHead(months[monthNum]);
+	};
+
+	function createTeble(){
+		let tableContainer = document.querySelector('#table');
+		let table = document.createElement('table');
+		let tr = document.createElement('tr');
+
+		if(tableContainer.children[0])
+			tableContainer.children[0].remove();
+
+		table.setAttribute('width', '500px');
+		days.forEach((el) => {
+			let th = document.createElement('th');
+			th.innerHTML = el;
+			tr.appendChild(th);
+		});
+		table.appendChild(tr);
+		tableContainer.appendChild(table);
+		monthInNumber = months.indexOf(month.innerHTML);
+
+		createCalendarNumbers(year.innerHTML, monthInNumber, table);
+	};
+
+	function createCalendarNumbers(year, month, container){
+		let dayOfWeek = new Date(year, month).getDay();
+		let currentDate = 1;
+		let max = new Date(year, month + 1, 0).getDate();
+		let iterations = Math.ceil((max - dayOfWeek)/7);
+
+		for(let i = 0; i <= iterations; i++){
+			let tr = document.createElement('tr');
+
+			for(let j = 0; j < 7; j++){
+				let td = document.createElement('td');
+				if(i == 0 && j < dayOfWeek || currentDate > max){
+					td.innerHTML = ''
+				}else{
+					td.innerHTML = currentDate;
+					currentDate++;
+				}
+				tr.appendChild(td);
+			}
+			container.appendChild(tr);
+		}
+	};
+</script>
+</body>
+</html>
